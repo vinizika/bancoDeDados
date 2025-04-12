@@ -29,6 +29,20 @@ for dep_id in ids_cursos:
     supabase.table("cursos").delete().eq("id_departamento", dep_id).execute()
 print("Tabela 'cursos' limpa com sucesso.")
 
+# Buscar todos os registros da tabela 'tcc'
+tccs = supabase.table("tcc").select("id_professor, id_departamento, assunto").execute().data
+
+# Deletar cada registro usando as chaves compostas
+for tcc in tccs:
+    supabase.table("tcc")\
+        .delete()\
+        .eq("id_professor", tcc["id_professor"])\
+        .eq("id_departamento", tcc["id_departamento"])\
+        .eq("assunto", tcc["assunto"])\
+        .execute()
+
+print("Tabela 'tcc' limpa com sucesso.")
+
 # Deletar todos os registros da tabela 'departamento'
 ids_departamentos = supabase.table("departamento").select("id_departamento").execute().data
 ids_departamentos = [item["id_departamento"] for item in ids_departamentos]
@@ -201,4 +215,108 @@ for dep in departamentos:
 
         print(f"Curso inserido: {nome_curso}, Coord.: {coordenador}, Dep.: {nome_dep} | Resposta: {response}")
 
+# Temas de TCC por nome de departamento
+temas_tcc_por_departamento = {
+    "Engenharia": [
+        "Implementação de um circuito elétrico revestido em materiais nobres",
+        "O dilema da construção anti-terremoto japonesa no Brasil",
+        "Uso de impressão 3D na construção civil",
+        "Simulação de tráfego urbano com inteligência artificial",
+        "Desenvolvimento de materiais biodegradáveis para engenharia ambiental"
+    ],
+    "Ciências Exatas": [
+        "Modelagem estatística em séries temporais de dados climáticos",
+        "A geometria fractal na natureza",
+        "Teoremas matemáticos aplicados à criptografia moderna",
+        "Simulação computacional de reações químicas",
+        "Análise da precisão em métodos numéricos"
+    ],
+    "Informática": [
+        "Sistema de recomendação com machine learning",
+        "Desenvolvimento de uma plataforma web educacional",
+        "Algoritmos de detecção de intrusão em redes",
+        "Aplicação de blockchain em autenticação digital",
+        "Reconhecimento facial com redes neurais convolucionais"
+    ],
+    "Ciências Sociais": [
+        "O impacto das redes sociais na democracia contemporânea",
+        "Políticas públicas e desigualdade social no Brasil",
+        "Análise do comportamento eleitoral nas últimas décadas",
+        "Relações raciais e educação",
+        "O papel das ONGs em comunidades periféricas"
+    ],
+    "Linguística e Letras": [
+        "Tradução cultural de expressões idiomáticas",
+        "Fonética aplicada ao ensino de línguas estrangeiras",
+        "Literatura marginal no Brasil contemporâneo",
+        "Análise linguística de discursos políticos",
+        "Tecnologias de ensino de línguas no século XXI"
+    ],
+    "Filosofia": [
+        "Nietzsche e o niilismo moderno",
+        "Ética em inteligência artificial",
+        "O conceito de liberdade em Sartre",
+        "Crítica da razão pura revisitada",
+        "A filosofia como ferramenta de transformação social"
+    ],
+    "Ciências Biológicas": [
+        "Impacto da urbanização na biodiversidade local",
+        "Genética comportamental em mamíferos",
+        "Ecossistemas marinhos e suas interdependências",
+        "Estudo sobre plantas bioindicadoras de poluição",
+        "Evolução adaptativa em ambientes extremos"
+    ],
+    "Ciências da Saúde": [
+        "Prevenção de doenças cardiovasculares com nutrição",
+        "Análise de protocolos de emergência hospitalar",
+        "Atenção primária e saúde da família",
+        "Estudo do impacto da atividade física na saúde mental",
+        "Uso de IA na triagem de pacientes"
+    ],
+    "Educação Física": [
+        "A influência da atividade física no rendimento escolar",
+        "Reabilitação pós-lesão com fisioterapia esportiva",
+        "Técnicas de treinamento funcional em idosos",
+        "Desenvolvimento motor em crianças de 6 a 10 anos",
+        "Psicologia esportiva em atletas de alto rendimento"
+    ]
+}
 
+# Buscar departamentos e professores vinculados (via participa)
+departamentos = supabase.table("departamento").select("id_departamento, nome").execute().data
+participacoes = supabase.table("participa").select("id_professor, id_departamento").execute().data
+
+# Organizar professores por departamento
+professores_por_departamento = {}
+for p in participacoes:
+    dep_id = p["id_departamento"]
+    prof_id = p["id_professor"]
+    professores_por_departamento.setdefault(dep_id, []).append(prof_id)
+
+# Inserir TCCs com novas regras
+for dep in departamentos:
+    nome_dep = dep["nome"]
+    id_dep = dep["id_departamento"]
+
+    temas_possiveis = temas_tcc_por_departamento.get(nome_dep, [])
+    professores = professores_por_departamento.get(id_dep, [])
+
+    if not temas_possiveis or not professores:
+        continue
+
+    # Sortear entre 1 e o número de temas disponíveis
+    qtd_tccs = random.randint(1, len(temas_possiveis))
+    temas_escolhidos = random.sample(temas_possiveis, qtd_tccs)
+
+    for assunto in temas_escolhidos:
+        id_prof = random.choice(professores)  # 1 professor por TCC
+        response = (
+            supabase.table("tcc")
+            .insert({
+                "assunto": assunto,
+                "id_professor": id_prof,
+                "id_departamento": id_dep
+            })
+            .execute()
+        )
+        print(f"TCC inserido: {assunto} | Prof: {id_prof} | Dep: {nome_dep} | Resposta: {response}")
