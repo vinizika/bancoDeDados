@@ -114,68 +114,33 @@ CREATE TABLE Tem (
     FOREIGN KEY (Id_Historico) REFERENCES Historico(Id_Historico)
 );
 
-CREATE TABLE disciplinas (
-    id SERIAL PRIMARY KEY,          -- Chave primária com auto incremento
-    nome VARCHAR(100),
-    idDisciplina VARCHAR(100),
-    Semestre int 
-);
 
-ALTER TABLE disciplinas DROP COLUMN idDisciplina;
-ALTER TABLE disciplinas ADD COLUMN professor_id INT;
-ALTER TABLE disciplinas ADD CONSTRAINT ministra FOREIGN KEY (professor_id) REFERENCES professores(id);
+DROP TABLE IF EXISTS Aluno CASCADE;
+DROP TABLE IF EXISTS Cursos CASCADE;
+DROP TABLE IF EXISTS Departamento CASCADE;
+DROP TABLE IF EXISTS Disciplina CASCADE;
+DROP TABLE IF EXISTS Historico CASCADE;
+DROP TABLE IF EXISTS Tcc CASCADE;
+DROP TABLE IF EXISTS Professor CASCADE;
+DROP TABLE IF EXISTS Possui CASCADE;
+DROP TABLE IF EXISTS participa CASCADE;
+DROP TABLE IF EXISTS cursa CASCADE;
+DROP TABLE IF EXISTS tem CASCADE;
 
-Create table professores(
-  id SERIAL PRIMARY KEY,
-  nome VARCHAR(100),
-  disciplina VARCHAR(100),
-  departamento VARCHAR(100)
-)
+ALTER TABLE aluno
+ADD semestre int
 
-ALTER TABLE professores DROP COLUMN departamento;
+ALTER TABLE disciplina ADD id_coordenador int
+ALTER TABLE disciplina
+ADD CONSTRAINT fk_disciplina_coordenador
+FOREIGN KEY (id_coordenador)
+REFERENCES professor(id_professor);
 
-ALTER TABLE professores ADD COLUMN departamento_id INT;
-ALTER TABLE professores ADD CONSTRAINT participa FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
+ALTER TABLE departamento ADD id_coordenador int
+ALTER TABLE departamento
+ADD CONSTRAINT curso_coordenador
+FOREIGN KEY (id_coordenador)
+REFERENCES professor(id_professor);
 
-create table departamentos(
-  id SERIAL PRIMARY KEY,
-  area VARCHAR(100),
-  chefes VARCHAR(100),
-  nome VARCHAR(100)
-)
-
-ALTER TABLE departamentos DROP COLUMN tcc_id;
-ALTER TABLE departamentos ADD COLUMN tcc_id INT;
-ALTER TABLE departamentos ADD CONSTRAINT possuem FOREIGN KEY (tcc_id) REFERENCES tcc(id);
-
-create table historicoAluno(
-  id_aluno INT,
-  aprovado VARCHAR(100),
-  ra VARCHAR(100),
-  media float,
-  p1 float,
-  p2 float,
-  p3 float,
-  CONSTRAINT possui FOREIGN KEY (id_aluno) REFERENCES Aluno(id)
-)
-
-ALTER TABLE historicoaluno DROP COLUMN ra;
-
-ALTER TABLE historicoaluno ADD COLUMN id_disciplina INT;
-ALTER TABLE historicoaluno ADD CONSTRAINT tem FOREIGN KEY (id_disciplina) REFERENCES disciplinas(id);
-
-create table tcc(
-  id SERIAL PRIMARY KEY,
-  aluno VARCHAR(100),
-  assunto VARCHAR(100),
-  professor VARCHAR(100)
-)
-
-ALTER TABLE tcc DROP COLUMN aluno;
-alter table tcc drop column professor;
-
-ALTER TABLE tcc ADD COLUMN professor_id INT;
-ALTER TABLE tcc ADD CONSTRAINT orienta FOREIGN KEY (professor_id) REFERENCES professores(id);
-
-ALTER TABLE tcc ADD COLUMN departamento_id INT;
-ALTER TABLE tcc ADD CONSTRAINT possuem FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
+ALTER TABLE disciplina
+DROP COLUMN id_coordenador
