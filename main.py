@@ -22,6 +22,18 @@ for i in range(len(participacoes)):
     )
     print(f"Removido: professor={prof_id}, departamento={dep_id} | Resposta: {response}")
 
+
+# === LIMPAR TABELA 'possui' ===
+possui_registros = supabase.table("possui").select("id_disciplina, id_curso").execute().data
+for reg in possui_registros:
+    supabase.table("possui")\
+        .delete()\
+        .eq("id_disciplina", reg["id_disciplina"])\
+        .eq("id_curso", reg["id_curso"])\
+        .execute()
+print("Tabela 'possui' limpa com sucesso.")
+
+
 # Deletar todos os registros da tabela 'cursos'
 cursos = supabase.table("cursos").select("id_departamento").execute().data
 ids_cursos = [c["id_departamento"] for c in cursos]
@@ -42,6 +54,17 @@ for tcc in tccs:
         .execute()
 
 print("Tabela 'tcc' limpa com sucesso.")
+
+# === LIMPAR TABELA 'disciplina' ===
+disciplinas = supabase.table("disciplina").select("id_professor, nome, semestre").execute().data
+for d in disciplinas:
+    supabase.table("disciplina")\
+        .delete()\
+        .eq("id_professor", d["id_professor"])\
+        .eq("nome", d["nome"])\
+        .eq("semestre", d["semestre"])\
+        .execute()
+print("Tabela 'disciplina' limpa com sucesso.")
 
 # Deletar todos os registros da tabela 'departamento'
 ids_departamentos = supabase.table("departamento").select("id_departamento").execute().data
@@ -320,3 +343,83 @@ for dep in departamentos:
             .execute()
         )
         print(f"TCC inserido: {assunto} | Prof: {id_prof} | Dep: {nome_dep} | Resposta: {response}")
+
+import random
+
+
+# === DICIONÁRIO DE DISCIPLINAS POR CURSO ===
+disciplinas_por_curso = {
+    "Engenharia Civil": ["Materiais de Construção", "Estruturas", "Topografia", "Geotecnia", "Hidráulica"],
+    "Engenharia Elétrica": ["Circuitos Elétricos", "Eletromagnetismo", "Eletrônica Digital", "Máquinas Elétricas", "Sistemas de Controle"],
+    "Engenharia de Produção": ["Logística", "Gestão da Qualidade", "Engenharia de Métodos", "Planejamento da Produção", "Pesquisa Operacional"],
+    "Engenharia Mecânica": ["Mecânica dos Fluidos", "Termodinâmica", "Processos de Fabricação", "Resistência dos Materiais", "Máquinas Térmicas"],
+    "Matemática": ["Álgebra Linear", "Cálculo Diferencial", "Geometria Analítica", "Teoria dos Números", "Estatística"],
+    "Física": ["Mecânica Clássica", "Física Moderna", "Ondulatória", "Eletromagnetismo", "Óptica"],
+    "Estatística": ["Probabilidade", "Inferência Estatística", "Estatística Aplicada", "Análise de Dados", "Modelos Lineares"],
+    "Ciência da Computação": ["Estrutura de Dados", "Redes de Computadores", "Programação Orientada a Objetos", "Sistemas Operacionais", "Banco de Dados"],
+    "Sistemas de Informação": ["Engenharia de Software", "Programação Web", "Banco de Dados", "Gestão de Projetos", "Sistemas ERP"],
+    "Engenharia de Software": ["Arquitetura de Software", "Testes de Software", "Gerência de Configuração", "Desenvolvimento Ágil", "Requisitos de Software"],
+    "Sociologia": ["Teorias Sociológicas", "Sociologia Brasileira", "Movimentos Sociais", "Pesquisa Social", "Sociologia Urbana"],
+    "Relações Internacionais": ["Política Internacional", "Geopolítica", "Organismos Internacionais", "História das Relações Internacionais", "Comércio Exterior"],
+    "Serviço Social": ["Direitos Sociais", "Políticas Públicas", "Família e Sociedade", "Trabalho e Assistência", "Intervenção Profissional"],
+    "Letras": ["Literatura Brasileira", "Gramática", "Redação", "Teoria Literária", "Literatura Comparada"],
+    "Linguística": ["Fonologia", "Morfologia", "Sintaxe", "Semântica", "Sociolinguística"],
+    "Tradução": ["Tradução Técnica", "Tradução Literária", "Linguística Aplicada", "Tecnologias de Tradução", "Revisão de Textos"],
+    "Filosofia": ["Filosofia Antiga", "Filosofia Moderna", "Epistemologia", "Ética", "Filosofia Política"],
+    "Teologia": ["Estudos Bíblicos", "História da Igreja", "Teologia Sistemática", "Liturgia", "Pastoral"],
+    "Estudos Clássicos": ["Latim", "Grego Antigo", "Mitologia", "História Antiga", "Retórica"],
+    "Biologia": ["Zoologia", "Botânica", "Genética", "Microbiologia", "Biologia Celular"],
+    "Ecologia": ["Gestão Ambiental", "Conservação da Biodiversidade", "Poluição e Impactos", "Ecossistemas", "Legislação Ambiental"],
+    "Biomedicina": ["Análises Clínicas", "Imunologia", "Bioquímica", "Fisiologia Humana", "Patologia Geral"],
+    "Medicina": ["Anatomia", "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia"],
+    "Enfermagem": ["Enfermagem em Saúde Coletiva", "Procedimentos de Enfermagem", "Urgência e Emergência", "Saúde da Mulher", "Ética em Enfermagem"],
+    "Nutrição": ["Nutrição Clínica", "Bioquímica de Alimentos", "Avaliação Nutricional", "Dietoterapia", "Segurança Alimentar"],
+    "Educação Física": ["Fisiologia do Exercício", "Treinamento Esportivo", "Didática da Educação Física", "Psicomotricidade", "Recreação e Lazer"],
+    "Esporte": ["Biomecânica", "Planejamento de Treinamento", "Esportes Coletivos", "Avaliação Física", "Gestão Esportiva"],
+    "Fisioterapia Esportiva": ["Lesões Musculoesqueléticas", "Reabilitação Funcional", "Cinesioterapia", "Fisioterapia Respiratória", "Anatomia Aplicada"]
+}
+
+# === BUSCAR DADOS ===
+cursos = supabase.table("cursos").select("id_curso, nome, id_departamento").execute().data
+participa = supabase.table("participa").select("id_professor, id_departamento").execute().data
+
+# Professores por departamento
+professores_por_departamento = {}
+for p in participa:
+    professores_por_departamento.setdefault(p["id_departamento"], []).append(p["id_professor"])
+
+# === INSERIR DISCIPLINAS E POPULAR 'POSSUI' ===
+for curso in cursos:
+    id_curso = curso["id_curso"]
+    nome_curso = curso["nome"]
+    id_departamento = curso["id_departamento"]
+    professores = professores_por_departamento.get(id_departamento, [])
+
+    if nome_curso not in disciplinas_por_curso or not professores:
+        continue
+
+    nomes_disciplinas = disciplinas_por_curso[nome_curso]
+    qtd_disciplinas = max(3, random.randint(3, len(nomes_disciplinas)))
+    nomes_escolhidos = random.sample(nomes_disciplinas, qtd_disciplinas)
+
+    for nome_disciplina in nomes_escolhidos:
+        id_professor = random.choice(professores)
+        semestre = random.randint(1, 10)
+
+        # Inserir disciplina
+        response = supabase.table("disciplina").insert({
+            "id_professor": id_professor,
+            "nome": nome_disciplina,
+            "semestre": semestre
+        }).execute()
+
+        id_disciplina = response.data[0]["id_disciplina"]
+
+        # Inserir relacionamento na tabela 'possui'
+        supabase.table("possui").insert({
+            "id_disciplina": id_disciplina,
+            "id_curso": id_curso
+        }).execute()
+
+        print(f"Curso: {nome_curso} | Disciplina: {nome_disciplina} | Prof: {id_professor} | Sem: {semestre} | Inserido em 'possui'")
+
