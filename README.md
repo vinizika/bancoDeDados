@@ -17,14 +17,14 @@ Querys em SQL utilizadas para o desenvolvimento do projeto:
 08. Liste os IDs dos professores que ensinam mais de um curso.
 09. Encontre o número total de estudantes que cursaram "Inteligência Artificial" (course_id = 'CS-102').
 10. Recupere os nomes e IDs dos estudantes que são orientados por um professor específico (ID = 'I001').
-11. Mostre todo o histórico escolar de um aluno que teve reprovação em uma disciplina, retornando inclusive a reprovação em um semestre e a aprovação no semestre seguinte;
-12. Mostre todos os TCCs orientados por um professor junto com os nomes dos alunos que fizeram o projeto;
-13. Mostre a matriz curicular de pelo menos 2 cursos diferentes que possuem disciplinas em comum (e.g., Ciência da Computação e Ciência de Dados). Este exercício deve ser dividido em 2 queries sendo uma para cada curso;
-14. Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno;
-15. Liste todos os chefes de departamento e coordenadores de curso em apenas uma query de forma que a primeira coluna seja o nome do professor, a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. Substitua os campos em branco do resultado da query pelo texto "nenhum"
+11. Mostre todo o histórico escolar de um aluno que teve reprovação em uma disciplina, retornando inclusive a reprovação em um semestre e a aprovação no semestre seguinte.
+12. Mostre todos os TCCs orientados por um professor junto com os nomes dos alunos que fizeram o projeto.
+13. Mostre a matriz curicular de pelo menos 2 cursos diferentes que possuem disciplinas em comum (e.g., Ciência da Computação e Ciência de Dados). Este exercício deve ser dividido em 2 queries sendo uma para cada curso.
+14. Para um determinado aluno, mostre os códigos e nomes das diciplinas já cursadas junto com os nomes dos professores que lecionaram a disciplina para o aluno.
+15. Liste todos os chefes de departamento e coordenadores de curso em apenas uma query de forma que a primeira coluna seja o nome do professor, a segunda o nome do departamento coordena e a terceira o nome do curso que coordena. Substitua os campos em branco do resultado da query pelo texto "nenhum".
 
 # Descrição de como executar o projeto
-
+Primeiramente o usuário deve rodar o código em Python criado pelo grupo na IDE de sua escolha (como o VsCode por exemplo) para gerar os dados aleatórios correspondentes à cada tópico como nome do aluno, disciplinas, entre outros, após isso, deve abrir o SupaBase e verificar o resultado das querys nas tabelas geradas, checando informações como: se um aluno foi aprovado na disciplina "X", em qual departamento o curso "Y" se encontra, entre outros dados relacionados, ou seja, é nele onde os usuários poderão ver todas as informações internas relevantes da universidade.
 
 # MR E MER
 ![image](https://github.com/user-attachments/assets/1f41ff7e-1363-49e3-8d99-1decd7627825)
