@@ -1,7 +1,9 @@
 CREATE TABLE Departamento (
     Id_Departamento SERIAL PRIMARY KEY,
     Nome VARCHAR(100),
-    Area VARCHAR(100)
+    Area VARCHAR(100),
+    Id_Coordenador INT,
+    FOREIGN KEY (Id_Coordenador) REFERENCES Professor(Id_Professor)
 );
 
 CREATE TABLE Professor (
@@ -29,9 +31,10 @@ CREATE TABLE TCC (
 CREATE TABLE Cursos (
     Id_curso SERIAL PRIMARY KEY,
     Nome VARCHAR(100),
-    Coordenadores VARCHAR(100),
+    Id_coordenador INT,
     Id_Departamento INT,
-    FOREIGN KEY (Id_Departamento) REFERENCES Departamento(Id_Departamento)
+    FOREIGN KEY (Id_Departamento) REFERENCES Departamento(Id_Departamento),
+    FOREIGN KEY (Id_coordenador) REFERENCES Professor(Id_Professor)
 );
 
 CREATE TABLE Aluno (
@@ -40,6 +43,7 @@ CREATE TABLE Aluno (
     RA VARCHAR(20),
     Id_curso INT,
     Id_TCC INT,
+    Semestre INT,
     FOREIGN KEY (Id_curso) REFERENCES Cursos(Id_curso),
     FOREIGN KEY (Id_TCC) REFERENCES TCC(Id_TCC)
 );
