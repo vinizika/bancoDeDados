@@ -6,102 +6,203 @@ from supabase import create_client, Client
 url: str = "https://fyxhasglgtnjrjubavby.supabase.co"
 key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eGhhc2dsZ3RuanJqdWJhdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1MTA0MDYsImV4cCI6MjA1ODA4NjQwNn0.tnRNG6HJDeECH829Jm5qbvZdMbeNSyW57VjB2PH1a_w"
 supabase: Client = create_client(url, key)
-
+c = 0
 ##############################################################################
 # ROTINA DE EXCLUSÃO DAS TABELAS (na ordem para evitar conflitos de FK)
 ##############################################################################
 
 # 1) Excluir "departamento_professor"
-participacoes = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
-for p in participacoes:
-    supabase.table("departamento_professor").delete()\
-        .eq("id_professor", p["id_professor"])\
-        .eq("id_departamento", p["id_departamento"])\
-        .execute()
+while True:
+    participacoes = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
+
+    if not participacoes:
+        break
+    c+=1
+    for p in participacoes:
+        supabase.table("departamento_professor").delete()\
+            .eq("id_professor", p["id_professor"])\
+            .eq("id_departamento", p["id_departamento"])\
+            .execute()
+    print(f'{c} departamento_professor')
 print("Tabela 'departamento_professor' limpa com sucesso.")
 
 # 2) Excluir "curso_disciplina"
-possui_registros = supabase.table("curso_disciplina").select("id_disciplina, id_curso").execute().data
-for reg in possui_registros:
-    supabase.table("curso_disciplina").delete()\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .eq("id_curso", reg["id_curso"])\
-        .execute()
+c=0
+while True:
+    possui_registros = supabase.table("curso_disciplina").select("id_disciplina, id_curso").execute().data
+
+    if not possui_registros:
+        break
+
+    for reg in possui_registros:
+        supabase.table("curso_disciplina").delete()\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .eq("id_curso", reg["id_curso"])\
+            .execute()
+
+    c += 1 
+    print(f'{c} curso_disciplina')
+
 print("Tabela 'curso_disciplina' limpa com sucesso.")
 
+c=0
 # 3) Excluir "aluno_disciplina"
-cursa_registros = supabase.table("aluno_disciplina").select("id_aluno, id_disciplina").execute().data
-for reg in cursa_registros:
-    supabase.table("aluno_disciplina").delete()\
-        .eq("id_aluno", reg["id_aluno"])\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .execute()
+while True:
+    cursa_registros = supabase.table("aluno_disciplina").select("id_aluno, id_disciplina").execute().data
+
+    if not cursa_registros:
+        break
+
+    for reg in cursa_registros:
+        supabase.table("aluno_disciplina").delete()\
+            .eq("id_aluno", reg["id_aluno"])\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .execute()
+    c+=1
+    print(f'{c} aluno_disciplina')
 print("Tabela 'aluno_disciplina' limpa com sucesso.")
 
 # 4) Excluir "historico_disciplina"
-tem_registros = supabase.table("historico_disciplina").select("id_disciplina, id_historico").execute().data
-for reg in tem_registros:
-    supabase.table("historico_disciplina").delete()\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .eq("id_historico", reg["id_historico"])\
-        .execute()
+c = 0
+
+while True:
+    tem_registros = supabase.table("historico_disciplina").select("id_disciplina, id_historico").execute().data
+
+    if not tem_registros:
+        break
+
+    for reg in tem_registros:
+        supabase.table("historico_disciplina").delete()\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .eq("id_historico", reg["id_historico"])\
+            .execute()
+
+    c += 1
+    print(f'{c} historico_disciplina')
 print("Tabela 'historico_disciplina' limpa com sucesso.")
 
 # 5) Excluir "historico"
-historico_registros = supabase.table("historico").select("id_historico").execute().data
-for reg in historico_registros:
-    supabase.table("historico").delete()\
-        .eq("id_historico", reg["id_historico"])\
-        .execute()
+c = 0
+
+while True:
+    historico_registros = supabase.table("historico").select("id_historico").execute().data
+
+    if not historico_registros:
+        break
+
+    for reg in historico_registros:
+        supabase.table("historico").delete()\
+            .eq("id_historico", reg["id_historico"])\
+            .execute()
+
+    c += 1
+    print(f'{c} historico')
 print("Tabela 'historico' limpa com sucesso.")
 
 # 6) Excluir "aluno"
-alunos_registros = supabase.table("aluno").select("id_aluno").execute().data
-for reg in alunos_registros:
-    supabase.table("aluno").delete()\
-        .eq("id_aluno", reg["id_aluno"])\
-        .execute()
+c = 0
+
+while True:
+    alunos_registros = supabase.table("aluno").select("id_aluno").execute().data
+
+    if not alunos_registros:
+        break
+
+    for reg in alunos_registros:
+        supabase.table("aluno").delete()\
+            .eq("id_aluno", reg["id_aluno"])\
+            .execute()
+
+    c += 1
+    print(f'{c} aluno')
 print("Tabela 'aluno' limpa com sucesso.")
 
 # 7) Excluir "cursos"
-cursos = supabase.table("cursos").select("id_departamento").execute().data
-for c in cursos:
-    supabase.table("cursos").delete()\
-        .eq("id_departamento", c["id_departamento"])\
-        .execute()
+cont = 0
+
+while True:
+    cursos = supabase.table("cursos").select("id_departamento").execute().data
+
+    if not cursos:
+        break
+
+    for c in cursos:
+        supabase.table("cursos").delete()\
+            .eq("id_departamento", c["id_departamento"])\
+            .execute()
+
+    cont += 1
+    print(f'{c} cursos')
 print("Tabela 'cursos' limpa com sucesso.")
 
 # 8) Excluir "tcc"
-tccs = supabase.table("tcc").select("id_professor, id_departamento, assunto").execute().data
-for tcc in tccs:
-    supabase.table("tcc").delete()\
-        .eq("id_professor", tcc["id_professor"])\
-        .eq("id_departamento", tcc["id_departamento"])\
-        .eq("assunto", tcc["assunto"])\
-        .execute()
+c = 0
+
+while True:
+    tccs = supabase.table("tcc").select("id_professor, id_departamento, assunto").execute().data
+
+    if not tccs:
+        break
+
+    for tcc in tccs:
+        supabase.table("tcc").delete()\
+            .eq("id_professor", tcc["id_professor"])\
+            .eq("id_departamento", tcc["id_departamento"])\
+            .eq("assunto", tcc["assunto"])\
+            .execute()
+
+    c += 1
+    print(f'{c} tcc')
 print("Tabela 'tcc' limpa com sucesso.")
 
 # 9) Excluir "disciplina"
-disciplinas = supabase.table("disciplina").select("id_professor, nome, semestre").execute().data
-for d in disciplinas:
-    supabase.table("disciplina").delete()\
-        .eq("id_professor", d["id_professor"])\
-        .eq("nome", d["nome"])\
-        .eq("semestre", d["semestre"])\
-        .execute()
+c = 0
+
+while True:
+    disciplinas = supabase.table("disciplina").select("id_professor, nome, semestre").execute().data
+
+    if not disciplinas:
+        break
+
+    for d in disciplinas:
+        supabase.table("disciplina").delete()\
+            .eq("id_professor", d["id_professor"])\
+            .eq("nome", d["nome"])\
+            .eq("semestre", d["semestre"])\
+            .execute()
+
+    c += 1
+    print(f'{c} disciplina')
 print("Tabela 'disciplina' limpa com sucesso.")
 
 # 10) Excluir "departamento"
-ids_departamentos = [item["id_departamento"] for item in supabase.table("departamento").select("id_departamento").execute().data]
-if ids_departamentos:
+c = 0
+
+while True:
+    ids_departamentos = [item["id_departamento"] for item in supabase.table("departamento").select("id_departamento").execute().data]
+
+    if not ids_departamentos:
+        break
+
     supabase.table("departamento").delete().in_("id_departamento", ids_departamentos).execute()
-    print("Tabela 'departamento' limpa com sucesso.")
+
+    c += 1
+    print(f'{c} departamento')
 
 # 11) Excluir "professor"
-ids_professores = [item["id_professor"] for item in supabase.table("professor").select("id_professor").execute().data]
-if ids_professores:
+c = 0
+
+while True:
+    ids_professores = [item["id_professor"] for item in supabase.table("professor").select("id_professor").execute().data]
+
+    if not ids_professores:
+        break
+
     supabase.table("professor").delete().in_("id_professor", ids_professores).execute()
-    print("Tabela 'professor' limpa com sucesso.")
+
+    c += 1
+    print(f'{c} professor')
+
 
 
 ##############################################################################
