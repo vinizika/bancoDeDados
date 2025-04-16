@@ -27,8 +27,8 @@ Querys em SQL utilizadas para o desenvolvimento do projeto:
 Primeiramente o usuário deve rodar o código em Python criado pelo grupo na IDE de sua escolha (como o VsCode por exemplo) para gerar os dados aleatórios correspondentes à cada tópico como nome do aluno, disciplinas, entre outros, após isso, deve abrir o SupaBase e verificar o resultado das querys nas tabelas geradas, checando informações como: se um aluno foi aprovado na disciplina "X", em qual departamento o curso "Y" se encontra, entre outros dados relacionados, ou seja, é nele onde os usuários poderão ver todas as informações internas relevantes da universidade.
 
 # MR E MER
-![image](https://github.com/user-attachments/assets/1f41ff7e-1363-49e3-8d99-1decd7627825)
-![image](https://github.com/user-attachments/assets/19b81544-9f6d-4dd3-b462-b2dbe9bc40ff)
+![WhatsApp Image 2025-04-16 at 20 09 13](https://github.com/user-attachments/assets/eefe3595-2001-46f0-bf7f-fac3f562461a)
+![WhatsApp Image 2025-04-16 at 19 50 27](https://github.com/user-attachments/assets/b7bf2cbe-7ab7-47d7-866d-279f43ca72f8)
 
 
 
