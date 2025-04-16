@@ -747,19 +747,31 @@ for curso in cursos_alunos:
                 }).execute()
             else:
                 print(f"Registro já existe: Aluno {id_aluno_criado} na disciplina {id_disciplina}")
+
+            semestres_disciplina = int(disciplinas_info.get(id_disc, 999))
+
             # Inserir histórico para a matrícula atual
-            p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=False)
-            if p3 is not None:
-                if(p1 < p2):
-                    media = (p2+p3)/2
-                else:
-                    media = (p1+p3)/2
-                if(media < 5):
-                    # Se a primeira tentativa não atingiu a média, forçar a aprovação na segunda tentativa.
-                    print(f"[histórico atual] Aluno {id_aluno_criado} reprovou na disciplina {id_disc} (primeira tentativa). Forçando segunda tentativa...")
-                    p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
+            if semestres_disciplina < aluno_semestre:
+                p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=False)
+                if p3 is not None:
+                    if(p1 < p2):
+                        media = (p2+p3)/2
+                    else:
+                        media = (p1+p3)/2
+                    if(media < 5):
+                        # Se a primeira tentativa não atingiu a média, forçar a aprovação na segunda tentativa.
+                        print(f"[histórico atual] Aluno {id_aluno_criado} reprovou na disciplina {id_disc} (primeira tentativa). Forçando segunda tentativa...")
+                        p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
+
+tccs_1 = supabase.table("tcc").select("id_tcc").execute().data
+alunos_com_tcc_1 = supabase.table("aluno").select("id_tcc").execute().data
+tccs_com_aluno_1 = {a["id_tcc"] for a in alunos_com_tcc_1 if a["id_tcc"] is not None}
+for t in tccs_1:
+    if t["id_tcc"] not in tccs_com_aluno_1:
+        supabase.table("tcc").delete().eq("id_tcc", t["id_tcc"]).execute()
 
 print("===== Inserção de Alunos, Cursa, Histórico e Tem finalizada. =====") 
+
 
 print("Iniciando verificações")
 

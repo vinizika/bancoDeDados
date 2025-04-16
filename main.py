@@ -6,102 +6,203 @@ from supabase import create_client, Client
 url: str = "https://fyxhasglgtnjrjubavby.supabase.co"
 key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eGhhc2dsZ3RuanJqdWJhdmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI1MTA0MDYsImV4cCI6MjA1ODA4NjQwNn0.tnRNG6HJDeECH829Jm5qbvZdMbeNSyW57VjB2PH1a_w"
 supabase: Client = create_client(url, key)
-
+c = 0
 ##############################################################################
 # ROTINA DE EXCLUSÃO DAS TABELAS (na ordem para evitar conflitos de FK)
 ##############################################################################
 
-# 1) Excluir "participa"
-participacoes = supabase.table("participa").select("id_professor, id_departamento").execute().data
-for p in participacoes:
-    supabase.table("participa").delete()\
-        .eq("id_professor", p["id_professor"])\
-        .eq("id_departamento", p["id_departamento"])\
-        .execute()
-print("Tabela 'participa' limpa com sucesso.")
+# 1) Excluir "departamento_professor"
+while True:
+    participacoes = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
 
-# 2) Excluir "possui"
-possui_registros = supabase.table("possui").select("id_disciplina, id_curso").execute().data
-for reg in possui_registros:
-    supabase.table("possui").delete()\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .eq("id_curso", reg["id_curso"])\
-        .execute()
-print("Tabela 'possui' limpa com sucesso.")
+    if not participacoes:
+        break
+    c+=1
+    for p in participacoes:
+        supabase.table("departamento_professor").delete()\
+            .eq("id_professor", p["id_professor"])\
+            .eq("id_departamento", p["id_departamento"])\
+            .execute()
+    print(f'{c} departamento_professor')
+print("Tabela 'departamento_professor' limpa com sucesso.")
 
-# 3) Excluir "cursa"
-cursa_registros = supabase.table("cursa").select("id_aluno, id_disciplina").execute().data
-for reg in cursa_registros:
-    supabase.table("cursa").delete()\
-        .eq("id_aluno", reg["id_aluno"])\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .execute()
-print("Tabela 'cursa' limpa com sucesso.")
+# 2) Excluir "curso_disciplina"
+c=0
+while True:
+    possui_registros = supabase.table("curso_disciplina").select("id_disciplina, id_curso").execute().data
 
-# 4) Excluir "tem"
-tem_registros = supabase.table("tem").select("id_disciplina, id_historico").execute().data
-for reg in tem_registros:
-    supabase.table("tem").delete()\
-        .eq("id_disciplina", reg["id_disciplina"])\
-        .eq("id_historico", reg["id_historico"])\
-        .execute()
-print("Tabela 'tem' limpa com sucesso.")
+    if not possui_registros:
+        break
+
+    for reg in possui_registros:
+        supabase.table("curso_disciplina").delete()\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .eq("id_curso", reg["id_curso"])\
+            .execute()
+
+    c += 1 
+    print(f'{c} curso_disciplina')
+
+print("Tabela 'curso_disciplina' limpa com sucesso.")
+
+c=0
+# 3) Excluir "aluno_disciplina"
+while True:
+    cursa_registros = supabase.table("aluno_disciplina").select("id_aluno, id_disciplina").execute().data
+
+    if not cursa_registros:
+        break
+
+    for reg in cursa_registros:
+        supabase.table("aluno_disciplina").delete()\
+            .eq("id_aluno", reg["id_aluno"])\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .execute()
+    c+=1
+    print(f'{c} aluno_disciplina')
+print("Tabela 'aluno_disciplina' limpa com sucesso.")
+
+# 4) Excluir "historico_disciplina"
+c = 0
+
+while True:
+    tem_registros = supabase.table("historico_disciplina").select("id_disciplina, id_historico").execute().data
+
+    if not tem_registros:
+        break
+
+    for reg in tem_registros:
+        supabase.table("historico_disciplina").delete()\
+            .eq("id_disciplina", reg["id_disciplina"])\
+            .eq("id_historico", reg["id_historico"])\
+            .execute()
+
+    c += 1
+    print(f'{c} historico_disciplina')
+print("Tabela 'historico_disciplina' limpa com sucesso.")
 
 # 5) Excluir "historico"
-historico_registros = supabase.table("historico").select("id_historico").execute().data
-for reg in historico_registros:
-    supabase.table("historico").delete()\
-        .eq("id_historico", reg["id_historico"])\
-        .execute()
+c = 0
+
+while True:
+    historico_registros = supabase.table("historico").select("id_historico").execute().data
+
+    if not historico_registros:
+        break
+
+    for reg in historico_registros:
+        supabase.table("historico").delete()\
+            .eq("id_historico", reg["id_historico"])\
+            .execute()
+
+    c += 1
+    print(f'{c} historico')
 print("Tabela 'historico' limpa com sucesso.")
 
 # 6) Excluir "aluno"
-alunos_registros = supabase.table("aluno").select("id_aluno").execute().data
-for reg in alunos_registros:
-    supabase.table("aluno").delete()\
-        .eq("id_aluno", reg["id_aluno"])\
-        .execute()
+c = 0
+
+while True:
+    alunos_registros = supabase.table("aluno").select("id_aluno").execute().data
+
+    if not alunos_registros:
+        break
+
+    for reg in alunos_registros:
+        supabase.table("aluno").delete()\
+            .eq("id_aluno", reg["id_aluno"])\
+            .execute()
+
+    c += 1
+    print(f'{c} aluno')
 print("Tabela 'aluno' limpa com sucesso.")
 
 # 7) Excluir "cursos"
-cursos = supabase.table("cursos").select("id_departamento").execute().data
-for c in cursos:
-    supabase.table("cursos").delete()\
-        .eq("id_departamento", c["id_departamento"])\
-        .execute()
+cont = 0
+
+while True:
+    cursos = supabase.table("cursos").select("id_departamento").execute().data
+
+    if not cursos:
+        break
+
+    for c in cursos:
+        supabase.table("cursos").delete()\
+            .eq("id_departamento", c["id_departamento"])\
+            .execute()
+
+    cont += 1
+    print(f'{c} cursos')
 print("Tabela 'cursos' limpa com sucesso.")
 
 # 8) Excluir "tcc"
-tccs = supabase.table("tcc").select("id_professor, id_departamento, assunto").execute().data
-for tcc in tccs:
-    supabase.table("tcc").delete()\
-        .eq("id_professor", tcc["id_professor"])\
-        .eq("id_departamento", tcc["id_departamento"])\
-        .eq("assunto", tcc["assunto"])\
-        .execute()
+c = 0
+
+while True:
+    tccs = supabase.table("tcc").select("id_professor, id_departamento, assunto").execute().data
+
+    if not tccs:
+        break
+
+    for tcc in tccs:
+        supabase.table("tcc").delete()\
+            .eq("id_professor", tcc["id_professor"])\
+            .eq("id_departamento", tcc["id_departamento"])\
+            .eq("assunto", tcc["assunto"])\
+            .execute()
+
+    c += 1
+    print(f'{c} tcc')
 print("Tabela 'tcc' limpa com sucesso.")
 
 # 9) Excluir "disciplina"
-disciplinas = supabase.table("disciplina").select("id_professor, nome, semestre").execute().data
-for d in disciplinas:
-    supabase.table("disciplina").delete()\
-        .eq("id_professor", d["id_professor"])\
-        .eq("nome", d["nome"])\
-        .eq("semestre", d["semestre"])\
-        .execute()
+c = 0
+
+while True:
+    disciplinas = supabase.table("disciplina").select("id_professor, nome, semestre").execute().data
+
+    if not disciplinas:
+        break
+
+    for d in disciplinas:
+        supabase.table("disciplina").delete()\
+            .eq("id_professor", d["id_professor"])\
+            .eq("nome", d["nome"])\
+            .eq("semestre", d["semestre"])\
+            .execute()
+
+    c += 1
+    print(f'{c} disciplina')
 print("Tabela 'disciplina' limpa com sucesso.")
 
 # 10) Excluir "departamento"
-ids_departamentos = [item["id_departamento"] for item in supabase.table("departamento").select("id_departamento").execute().data]
-if ids_departamentos:
+c = 0
+
+while True:
+    ids_departamentos = [item["id_departamento"] for item in supabase.table("departamento").select("id_departamento").execute().data]
+
+    if not ids_departamentos:
+        break
+
     supabase.table("departamento").delete().in_("id_departamento", ids_departamentos).execute()
-    print("Tabela 'departamento' limpa com sucesso.")
+
+    c += 1
+    print(f'{c} departamento')
 
 # 11) Excluir "professor"
-ids_professores = [item["id_professor"] for item in supabase.table("professor").select("id_professor").execute().data]
-if ids_professores:
+c = 0
+
+while True:
+    ids_professores = [item["id_professor"] for item in supabase.table("professor").select("id_professor").execute().data]
+
+    if not ids_professores:
+        break
+
     supabase.table("professor").delete().in_("id_professor", ids_professores).execute()
-    print("Tabela 'professor' limpa com sucesso.")
+
+    c += 1
+    print(f'{c} professor')
+
 
 
 ##############################################################################
@@ -167,11 +268,11 @@ for dep in departamentos:
             profs_da_area = [p["id_professor"] for p in professores]
         participacoes.add((random.choice(profs_da_area), dep["id_departamento"]))
 for (prof_id, dep_id) in participacoes:
-    response = supabase.table("participa").insert({
+    response = supabase.table("departamento_professor").insert({
         "id_professor": prof_id,
         "id_departamento": dep_id
     }).execute()
-    print(f"[participa] Inserido: professor={prof_id}, dep={dep_id} | Resp: {response}")
+    print(f"[departamento_professor] Inserido: professor={prof_id}, dep={dep_id} | Resp: {response}")
 
 # --- Atualização de Coordenadores nos Departamentos ---
 # Para cada departamento, escolher aleatoriamente um professor que participa daquele departamento
@@ -179,7 +280,7 @@ dept_coord_assigned = set()
 for dep in departamentos:
     dep_id = dep["id_departamento"]
     # Buscar os professores vinculados àquele departamento via "participa"
-    resp = supabase.table("participa").select("id_professor").eq("id_departamento", dep_id).execute().data
+    resp = supabase.table("departamento_professor").select("id_professor").eq("id_departamento", dep_id).execute().data
     # Filtrar os professores que ainda não foram designados como coordenadores
     disponiveis = [item["id_professor"] for item in resp if item["id_professor"] not in dept_coord_assigned]
     if disponiveis:
@@ -365,7 +466,7 @@ disciplinas_por_curso = {
 
 # Inserir disciplinas específicas e relacionamento em "possui"
 cursos = supabase.table("cursos").select("id_curso, nome, id_departamento").execute().data
-participa = supabase.table("participa").select("id_professor, id_departamento").execute().data
+participa = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
 professores_por_departamento = {}
 for p in participa:
     professores_por_departamento.setdefault(p["id_departamento"], []).append(p["id_professor"])
@@ -377,17 +478,20 @@ for curso in cursos:
     if nome_curso not in disciplinas_por_curso or not profs_dep:
         continue
     lista_disc = disciplinas_por_curso[nome_curso]
-    qtd_discip = max(10, random.randint(10, len(lista_disc)))
-    for nome_disc in random.sample(lista_disc, qtd_discip):
+    # Selecionar 10 disciplinas únicas para o curso
+    disciplinas_sorteadas = random.sample(lista_disc, 10)
+    # Embaralhar os semestres de 1 a 10 para garantir distribuição única
+    semestres_disponiveis = random.sample(range(1, 11), 10)
+# Atribuir uma disciplina a cada semestre
+    for nome_disc, sem_disc in zip(disciplinas_sorteadas, semestres_disponiveis):
         id_professor_escolhido = random.choice(profs_dep)
-        sem_disc = random.randint(1, 10)
         response_disc = supabase.table("disciplina").insert({
             "id_professor": id_professor_escolhido,
             "nome": nome_disc,
             "semestre": sem_disc
         }).execute()
         id_disciplina = response_disc.data[0]["id_disciplina"]
-        supabase.table("possui").insert({
+        supabase.table("curso_disciplina").insert({
             "id_disciplina": id_disciplina,
             "id_curso": id_curso
         }).execute()
@@ -443,10 +547,20 @@ for dep in dep_rows:
     if nome_dep in disciplinas_coringas_por_departamento:
         for disc in disciplinas_coringas_por_departamento[nome_dep]:
             # Escolher um professor aleatório que pertence ao departamento
-            profs = professores_por_dep.get(dep_id, [])
+            # obtém todos os professores que já têm ao menos uma disciplina
+            disciplinas = supabase.table("disciplina").select("id_professor").execute().data
+            professores_com_disc = {d["id_professor"] for d in disciplinas}
+
+            # para um departamento específico (dep_id), gera as duas listas:
+            profs = professores_por_dep.get(dep_id, []).copy()
+            profs_sem_disc = [prof for prof in profs if prof not in professores_com_disc]
             if not profs:
                 continue
-            chosen_prof = random.choice(profs)
+            if profs_sem_disc:
+                chosen_prof = random.choice(profs_sem_disc)
+                profs_sem_disc.remove(chosen_prof)
+            else:
+                chosen_prof = random.choice(profs)
             resp = supabase.table("disciplina").insert({
                 "id_professor": chosen_prof,
                 "nome": disc["nome"],
@@ -458,11 +572,11 @@ for dep in dep_rows:
             # Inserir a disciplina coringa na tabela "possui" para todos os cursos deste departamento
             cursos_do_dep = supabase.table("cursos").select("id_curso").eq("id_departamento", dep_id).execute().data
             for curso in cursos_do_dep:
-                supabase.table("possui").insert({
+                supabase.table("curso_disciplina").insert({
                     "id_disciplina": disc_id,
                     "id_curso": curso["id_curso"]
                 }).execute()
-                print(f"[possui] Relacionamento criado: Disciplina coringa {disc_id} associada ao Curso {curso['id_curso']}")
+                print(f"[curso_disciplina] Relacionamento criado: Disciplina coringa {disc_id} associada ao Curso {curso['id_curso']}")
 
 
 ##############################################################################
@@ -487,7 +601,7 @@ def gerar_historia(aluno_id, disciplina_id, forcar_passo=False):
         "p3": p3
     }).execute()
     hist_id = resp_hist.data[0]["id_historico"]
-    supabase.table("tem").insert({
+    supabase.table("historico_disciplina").insert({
         "id_disciplina": disciplina_id,
         "id_historico": hist_id
     }).execute()
@@ -586,7 +700,7 @@ for curso in cursos_alunos:
                     escolhidas = random.sample(coringas, qtd)
                     for id_disc in escolhidas:
                         # Inserir matrícula em cursa para o histórico anterior
-                        supabase.table("cursa").insert({
+                        supabase.table("aluno_disciplina").insert({
                             "id_aluno": id_aluno_criado,
                             "id_disciplina": id_disc
                         }).execute()
@@ -606,47 +720,136 @@ for curso in cursos_alunos:
         # --- Matrícula atual (disciplinas específicas do curso)
         # Selecionar de 1 a 3 disciplinas específicas vinculadas ao curso, considerando apenas aquelas cujo
         # semestre seja menor ou igual ao semestre do aluno.
-        poss_rows = supabase.table("possui").select("id_disciplina").eq("id_curso", id_curso).execute().data
-        lista_disc_ids = [
+        poss_rows = supabase.table("curso_disciplina").select("id_disciplina").eq("id_curso", id_curso).execute().data
+        disciplinas_escolhidas = [
             r["id_disciplina"]
             for r in poss_rows
             if int(disciplinas_info.get(r["id_disciplina"], 999)) <= aluno_semestre
         ]
-        if not lista_disc_ids:
+
+        if not disciplinas_escolhidas:
             continue
-        qtd_disciplinas_aluno = random.randint(1, 3)
-        if qtd_disciplinas_aluno > len(lista_disc_ids):
-            disciplinas_escolhidas = lista_disc_ids.copy()
-        else:
-            disciplinas_escolhidas = random.sample(lista_disc_ids, qtd_disciplinas_aluno)
 
         
         # Para cada disciplina selecionada na matrícula atual:
         for id_disc in disciplinas_escolhidas:
             # Verifica se o registro já existe
-            registro_existente = supabase.table("cursa")\
+            registro_existente = supabase.table("aluno_disciplina")\
                 .select("*")\
                 .eq("id_aluno", id_aluno_criado)\
                 .eq("id_disciplina", id_disc)\
                 .execute().data
 
             if not registro_existente:
-                supabase.table("cursa").insert({
+                supabase.table("aluno_disciplina").insert({
                     "id_aluno": id_aluno_criado,
                     "id_disciplina": id_disc
                 }).execute()
             else:
                 print(f"Registro já existe: Aluno {id_aluno_criado} na disciplina {id_disciplina}")
-            # Inserir histórico para a matrícula atual
-            p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=False)
-            if p3 is not None:
-                if(p1 < p2):
-                    media = (p2+p3)/2
-                else:
-                    media = (p1+p3)/2
-                if(media < 5):
-                    # Se a primeira tentativa não atingiu a média, forçar a aprovação na segunda tentativa.
-                    print(f"[histórico atual] Aluno {id_aluno_criado} reprovou na disciplina {id_disc} (primeira tentativa). Forçando segunda tentativa...")
-                    p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
 
-print("===== Inserção de Alunos, Cursa, Histórico e Tem finalizada. =====")
+            semestres_disciplina = int(disciplinas_info.get(id_disc, 999))
+
+            # Inserir histórico para a matrícula atual
+            if semestres_disciplina < aluno_semestre:
+                p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=False)
+                if p3 is not None:
+                    if(p1 < p2):
+                        media = (p2+p3)/2
+                    else:
+                        media = (p1+p3)/2
+                    if(media < 5):
+                        # Se a primeira tentativa não atingiu a média, forçar a aprovação na segunda tentativa.
+                        print(f"[histórico atual] Aluno {id_aluno_criado} reprovou na disciplina {id_disc} (primeira tentativa). Forçando segunda tentativa...")
+                        p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
+
+tccs_1 = supabase.table("tcc").select("id_tcc").execute().data
+alunos_com_tcc_1 = supabase.table("aluno").select("id_tcc").execute().data
+tccs_com_aluno_1 = {a["id_tcc"] for a in alunos_com_tcc_1 if a["id_tcc"] is not None}
+for t in tccs_1:
+    if t["id_tcc"] not in tccs_com_aluno_1:
+        supabase.table("tcc").delete().eq("id_tcc", t["id_tcc"]).execute()
+
+print("===== Inserção de Alunos, Cursa, Histórico e Tem finalizada. =====") 
+
+
+print("Iniciando verificações")
+
+# Verificando se todos os alunos possuem histórico
+alunos = supabase.table("aluno").select("id_aluno", "semestre").execute().data
+alunos_com_historico_ok = True
+for aluno in alunos:
+    if aluno["semestre"] > 1:
+        # Verificando se o aluno tem um histórico na tabela 'historico'
+        historico = supabase.table("historico").select("id_historico").eq("id_aluno", aluno["id_aluno"]).execute().data
+        if not historico:
+            print(f"Aluno {aluno['id_aluno']} não possui histórico.")
+            alunos_com_historico_ok = False
+
+if alunos_com_historico_ok:
+    print("Todos os alunos possuem histórico.")
+
+# Verificando se todo professor leciona pelo menos uma disciplina
+professores = supabase.table("professor").select("id_professor").execute().data
+disciplinas = supabase.table("disciplina").select("id_professor").execute().data
+ids_ensinam = {d["id_professor"] for d in disciplinas} 
+professores_ensinam_ok = True
+for prof in professores:
+    if prof["id_professor"] not in ids_ensinam:
+        print(f"Professor {prof['id_professor']} não leciona nenhuma disciplina.")
+        professores_ensinam_ok = False
+
+if professores_ensinam_ok:
+    print("Todos os professores lecionam pelo menos uma disciplina.")
+
+# Verificando se todas as disciplinas estão associadas a pelo menos um curso
+todas_disciplinas = supabase.table("disciplina").select("id_disciplina").execute().data
+relacoes = supabase.table("curso_disciplina").select("id_disciplina").execute().data
+ids_relacionados = {r["id_disciplina"] for r in relacoes}
+disciplinas_relacionadas_ok = True
+for disc in todas_disciplinas:
+    if disc["id_disciplina"] not in ids_relacionados:
+        print(f"Disciplina {disc['id_disciplina']} não está em nenhum curso.")
+        disciplinas_relacionadas_ok = False
+
+if disciplinas_relacionadas_ok:
+    print("Todas as disciplinas estão associadas a pelo menos um curso.")
+
+# Verificando se todos os TCCs têm pelo menos um aluno associado
+tccs = supabase.table("tcc").select("id_tcc").execute().data
+alunos_com_tcc = supabase.table("aluno").select("id_tcc").execute().data
+tccs_com_aluno = {a["id_tcc"] for a in alunos_com_tcc if a["id_tcc"] is not None}
+tccs_com_aluno_ok = True
+for t in tccs:
+    if t["id_tcc"] not in tccs_com_aluno:
+        print(f"TCC {t['id_tcc']} não possui nenhum aluno.")
+        tccs_com_aluno_ok = False
+
+if tccs_com_aluno_ok:
+    print("Todos os TCCs têm pelo menos um aluno associado.")
+
+# Verificando se todo departamento tem pelo menos um chefe (professor)
+departamentos = supabase.table("departamento").select("id_departamento").execute().data
+relacoes = supabase.table("departamento_professor").select("id_departamento").execute().data
+ids_com_professor = {r["id_departamento"] for r in relacoes}  # Departamentos com pelo menos um professor associado
+departamentos_com_chefe_ok = True
+for dept in departamentos:
+    if dept["id_departamento"] not in ids_com_professor:
+        print(f"Departamento {dept['id_departamento']} não tem chefe (professor).")
+        departamentos_com_chefe_ok = False
+
+if departamentos_com_chefe_ok:
+    print("Todos os departamentos têm pelo menos um chefe.")
+
+# Verificando se todo TCC tem pelo menos um orientador
+tccs = supabase.table("tcc").select("id_tcc", "id_professor").execute().data
+tccs_com_orientador_ok = True
+for t in tccs:
+    if not t["id_professor"]:
+        print(f"TCC {t['id_tcc']} não possui orientador.")
+        tccs_com_orientador_ok = False
+
+if tccs_com_orientador_ok:
+    print("Todos os TCCs têm pelo menos um orientador.")
+
+print("Verificação concluída.")
