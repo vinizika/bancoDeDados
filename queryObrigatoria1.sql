@@ -16,6 +16,13 @@ SELECT
     ELSE 'Reprovado'
   END AS situacao
 FROM historico AS h
-JOIN historico_disciplina AS t ON t.id_historico = h.id_historico
+INNER JOIN historico_disciplina AS t ON t.id_historico = h.id_historico
 LEFT JOIN aluno AS a ON a.id_aluno = h.id_aluno
-LEFT JOIN disciplina AS d ON d.id_disciplina = t.id_disciplina;
+LEFT JOIN disciplina AS d ON d.id_disciplina = t.id_disciplina
+WHERE a.id_aluno = (
+  SELECT id_aluno
+  FROM aluno
+  ORDER BY RANDOM()
+  LIMIT 1
+)
+order by semestre_real
