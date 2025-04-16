@@ -750,3 +750,84 @@ for curso in cursos_alunos:
                     p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
 
 print("===== Inserção de Alunos, Cursa, Histórico e Tem finalizada. =====") 
+
+print("Iniciando verificações")
+
+# Verificando se todos os alunos possuem histórico
+alunos = supabase.table("aluno").select("id_aluno", "semestre").execute().data
+alunos_com_historico_ok = True
+for aluno in alunos:
+    if aluno["semestre"] > 1:
+        # Verificando se o aluno tem um histórico na tabela 'historico'
+        historico = supabase.table("historico").select("id_historico").eq("id_aluno", aluno["id_aluno"]).execute().data
+        if not historico:
+            print(f"Aluno {aluno['id_aluno']} não possui histórico.")
+            alunos_com_historico_ok = False
+
+if alunos_com_historico_ok:
+    print("Todos os alunos possuem histórico.")
+
+# Verificando se todo professor leciona pelo menos uma disciplina
+professores = supabase.table("professor").select("id_professor").execute().data
+disciplinas = supabase.table("disciplina").select("id_professor").execute().data
+ids_ensinam = {d["id_professor"] for d in disciplinas} 
+professores_ensinam_ok = True
+for prof in professores:
+    if prof["id_professor"] not in ids_ensinam:
+        print(f"Professor {prof['id_professor']} não leciona nenhuma disciplina.")
+        professores_ensinam_ok = False
+
+if professores_ensinam_ok:
+    print("Todos os professores lecionam pelo menos uma disciplina.")
+
+# Verificando se todas as disciplinas estão associadas a pelo menos um curso
+todas_disciplinas = supabase.table("disciplina").select("id_disciplina").execute().data
+relacoes = supabase.table("curso_disciplina").select("id_disciplina").execute().data
+ids_relacionados = {r["id_disciplina"] for r in relacoes}
+disciplinas_relacionadas_ok = True
+for disc in todas_disciplinas:
+    if disc["id_disciplina"] not in ids_relacionados:
+        print(f"Disciplina {disc['id_disciplina']} não está em nenhum curso.")
+        disciplinas_relacionadas_ok = False
+
+if disciplinas_relacionadas_ok:
+    print("Todas as disciplinas estão associadas a pelo menos um curso.")
+
+# Verificando se todos os TCCs têm pelo menos um aluno associado
+tccs = supabase.table("tcc").select("id_tcc").execute().data
+alunos_com_tcc = supabase.table("aluno").select("id_tcc").execute().data
+tccs_com_aluno = {a["id_tcc"] for a in alunos_com_tcc if a["id_tcc"] is not None}
+tccs_com_aluno_ok = True
+for t in tccs:
+    if t["id_tcc"] not in tccs_com_aluno:
+        print(f"TCC {t['id_tcc']} não possui nenhum aluno.")
+        tccs_com_aluno_ok = False
+
+if tccs_com_aluno_ok:
+    print("Todos os TCCs têm pelo menos um aluno associado.")
+
+# Verificando se todo departamento tem pelo menos um chefe (professor)
+departamentos = supabase.table("departamento").select("id_departamento").execute().data
+relacoes = supabase.table("departamento_professor").select("id_departamento").execute().data
+ids_com_professor = {r["id_departamento"] for r in relacoes}  # Departamentos com pelo menos um professor associado
+departamentos_com_chefe_ok = True
+for dept in departamentos:
+    if dept["id_departamento"] not in ids_com_professor:
+        print(f"Departamento {dept['id_departamento']} não tem chefe (professor).")
+        departamentos_com_chefe_ok = False
+
+if departamentos_com_chefe_ok:
+    print("Todos os departamentos têm pelo menos um chefe.")
+
+# Verificando se todo TCC tem pelo menos um orientador
+tccs = supabase.table("tcc").select("id_tcc", "id_professor").execute().data
+tccs_com_orientador_ok = True
+for t in tccs:
+    if not t["id_professor"]:
+        print(f"TCC {t['id_tcc']} não possui orientador.")
+        tccs_com_orientador_ok = False
+
+if tccs_com_orientador_ok:
+    print("Todos os TCCs têm pelo menos um orientador.")
+
+print("Verificação concluída.")
