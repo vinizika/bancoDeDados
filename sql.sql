@@ -1,3 +1,9 @@
+
+CREATE TABLE Professor (
+    Id_Professor SERIAL PRIMARY KEY,
+    Nome VARCHAR(100)
+);
+
 CREATE TABLE Departamento (
     Id_Departamento SERIAL PRIMARY KEY,
     Nome VARCHAR(100),
@@ -6,17 +12,12 @@ CREATE TABLE Departamento (
     FOREIGN KEY (Id_Coordenador) REFERENCES Professor(Id_Professor)
 );
 
-CREATE TABLE Professor (
-    Id_Professor SERIAL PRIMARY KEY,
-    Nome VARCHAR(100)
-);
-
-CREATE TABLE Departamento_Professor (
-    Id_Departamento INT,
-    Id_Professor INT,
-    PRIMARY KEY (Id_Departamento, Id_Professor),
-    FOREIGN KEY (Id_Departamento) REFERENCES Departamento(Id_Departamento),
-    FOREIGN KEY (Id_Professor) REFERENCES Professor(Id_Professor)
+create table departamento_professor (
+    id_departamento INT,
+    id_professor INt,
+    PRIMARY KEY (id_departamento, id_professor),
+    FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento),
+    FOREIGN KEY (id_professor) REFERENCES professor(id_professor)
 );
 
 CREATE TABLE TCC (
@@ -37,6 +38,14 @@ CREATE TABLE Cursos (
     FOREIGN KEY (Id_coordenador) REFERENCES Professor(Id_Professor)
 );
 
+CREATE TABLE Disciplina (
+    Id_disciplina SERIAL PRIMARY KEY,
+    Nome VARCHAR(100),
+    Semestre INT,
+    Id_Professor INT,
+    FOREIGN KEY (Id_Professor) REFERENCES Professor(Id_Professor)
+);
+
 CREATE TABLE Aluno (
     Id_Aluno SERIAL PRIMARY KEY,
     Nome VARCHAR(100),
@@ -46,14 +55,6 @@ CREATE TABLE Aluno (
     Semestre INT,
     FOREIGN KEY (Id_curso) REFERENCES Cursos(Id_curso),
     FOREIGN KEY (Id_TCC) REFERENCES TCC(Id_TCC)
-);
-
-CREATE TABLE Disciplina (
-    Id_disciplina SERIAL PRIMARY KEY,
-    Nome VARCHAR(100),
-    Semestre INT,
-    Id_Professor INT,
-    FOREIGN KEY (Id_Professor) REFERENCES Professor(Id_Professor)
 );
 
 CREATE TABLE Curso_Disciplina (
