@@ -547,10 +547,20 @@ for dep in dep_rows:
     if nome_dep in disciplinas_coringas_por_departamento:
         for disc in disciplinas_coringas_por_departamento[nome_dep]:
             # Escolher um professor aleatório que pertence ao departamento
-            profs = professores_por_dep.get(dep_id, [])
+            # obtém todos os professores que já têm ao menos uma disciplina
+            disciplinas = supabase.table("disciplina").select("id_professor").execute().data
+            professores_com_disc = {d["id_professor"] for d in disciplinas}
+
+            # para um departamento específico (dep_id), gera as duas listas:
+            profs = professores_por_dep.get(dep_id, []).copy()
+            profs_sem_disc = [prof for prof in profs if prof not in professores_com_disc]
             if not profs:
                 continue
-            chosen_prof = random.choice(profs)
+            if profs_sem_disc:
+                chosen_prof = random.choice(profs_sem_disc)
+                profs_sem_disc.remove(chosen_prof)
+            else:
+                chosen_prof = random.choice(profs)
             resp = supabase.table("disciplina").insert({
                 "id_professor": chosen_prof,
                 "nome": disc["nome"],
@@ -714,7 +724,7 @@ for curso in cursos_alunos:
         disciplinas_escolhidas = [
             r["id_disciplina"]
             for r in poss_rows
-            if int(disciplinas_info.get(r["id_disciplina"], 999)) < aluno_semestre
+            if int(disciplinas_info.get(r["id_disciplina"], 999)) <= aluno_semestre
         ]
 
         if not disciplinas_escolhidas:
