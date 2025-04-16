@@ -4,7 +4,7 @@ SELECT DIStinct
   p.nome as professor,
   d.id_disciplina as id_disciplina
 FROM aluno as a
-JOIN aluno_disciplina as ad
+INNER JOIN aluno_disciplina as ad
 on ad.id_aluno = a.id_aluno
 LEFT JOIN disciplina as d
 on d.id_disciplina = ad.id_disciplina
