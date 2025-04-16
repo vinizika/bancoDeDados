@@ -10,6 +10,11 @@ SELECT
       AND h2.id_historico < h.id_historico
   ) AS semestre_real,
   CASE
+    WHEN h.p3 IS NULL THEN (h.p1 + h.p2)/2
+    WHEN h.p3 IS NOT NULL AND h.p1 > h.p2 THEN (h.p3 + h.p1)/2
+    WHEN h.p3 IS NOT NULL AND h.p1 <= h.p2 THEN (h.p3 + h.p2)/2
+  END AS media,
+  CASE
     WHEN h.p3 IS NULL THEN 'Aprovado'
     WHEN h.p3 IS NOT NULL AND h.p1 > h.p2 AND (h.p3 + h.p1)/2 >= 5 THEN 'Aprovado'
     WHEN h.p3 IS NOT NULL AND h.p1 <= h.p2 AND (h.p3 + h.p2)/2 >= 5 THEN 'Aprovado'
