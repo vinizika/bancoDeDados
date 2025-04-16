@@ -105,7 +105,7 @@ if ids_professores:
 
 
 ##############################################################################
-# INSERÇÃO NAS TABELAS (DEPARTAMENTO, PROFESSOR, departamento_professor, CURSOS, TCC, DISCIPLINA)
+# INSERÇÃO NAS TABELAS (DEPARTAMENTO, PROFESSOR, PARTICIPA, CURSOS, TCC, DISCIPLINA)
 ##############################################################################
 
 # --- Departamento ---
@@ -141,7 +141,7 @@ for nome_prof in nomes_gerados:
     }).execute()
     print(f"[professor] Inserido: nome={nome_prof} | Resp: {response}")
 
-# --- departamento_professor (professor <-> departamento) ---
+# --- Participa (professor <-> departamento) ---
 professores = supabase.table("professor").select("id_professor").execute().data
 departamentos = supabase.table("departamento").select("id_departamento, area, nome").execute().data
 departamentos_por_area = {}
@@ -174,11 +174,11 @@ for (prof_id, dep_id) in participacoes:
     print(f"[departamento_professor] Inserido: professor={prof_id}, dep={dep_id} | Resp: {response}")
 
 # --- Atualização de Coordenadores nos Departamentos ---
-# Para cada departamento, escolher aleatoriamente um professor que departamento_professor daquele departamento
+# Para cada departamento, escolher aleatoriamente um professor que participa daquele departamento
 dept_coord_assigned = set()
 for dep in departamentos:
     dep_id = dep["id_departamento"]
-    # Buscar os professores vinculados àquele departamento via "departamento_professor"
+    # Buscar os professores vinculados àquele departamento via "participa"
     resp = supabase.table("departamento_professor").select("id_professor").eq("id_departamento", dep_id).execute().data
     # Filtrar os professores que ainda não foram designados como coordenadores
     disponiveis = [item["id_professor"] for item in resp if item["id_professor"] not in dept_coord_assigned]
@@ -215,7 +215,7 @@ for dep_nome, cursos_lista in cursos_por_departamento.items():
     # Obter o id do departamento correspondente (dep_nome deve ser compatível com os nomes inseridos anteriormente)
     # Note: Em nosso dicionário de departamentos, os nomes podem ser, por exemplo, "Engenharia", "Ciências Exatas", etc.
     id_dep = None
-    # Buscar entre os departamentos inseridos o que historico_disciplina nome igual a dep_nome
+    # Buscar entre os departamentos inseridos o que tem nome igual a dep_nome
     for dep in departamentos:
         if dep["nome"] == dep_nome:
             id_dep = dep["id_departamento"]
@@ -331,7 +331,7 @@ for dep in departamentos:
         print(f"[tcc] Inserido: {assunto} | Prof: {coord} | Dep: {dep_nome} | Resp: {resp}")
     tccs_por_departamento[id_dep] = tcc_ids
 
-# --- Disciplina & curso_disciplina (Disciplinas específicas por curso) ---
+# --- Disciplina & Possui (Disciplinas específicas por curso) ---
 disciplinas_por_curso = {
     "Engenharia Civil": ["Materiais de Construção", "Estruturas", "Topografia", "Geotecnia", "Hidráulica", "Construção Civil", "Concreto Armado", "Saneamento", "Instalações Hidrossanitárias", "Tecnologia das Construções", "Fundações", "Planejamento Urbano"],
     "Engenharia Elétrica": ["Circuitos Elétricos", "Eletromagnetismo", "Eletrônica Digital", "Máquinas Elétricas", "Sistemas de Controle", "Eletrônica Analógica", "Eletrotécnica", "Geração de Energia", "Automação Industrial", "Instalações Elétricas", "Proteção de Sistemas Elétricos", "Fontes Renováveis de Energia"],
@@ -363,11 +363,11 @@ disciplinas_por_curso = {
     "Fisioterapia Esportiva": ["Lesões Musculoesqueléticas", "Reabilitação Funcional", "Cinesioterapia", "Fisioterapia Respiratória", "Anatomia Aplicada", "Fisioterapia Traumato-Ortopédica", "Eletrotermofototerapia", "Cinesiologia", "Biomecânica Clínica", "Fisioterapia Neurológica", "Exercício Terapêutico", "Práticas em Fisioterapia"]
 }
 
-# Inserir disciplinas específicas e relacionamento em "curso_disciplina"
+# Inserir disciplinas específicas e relacionamento em "possui"
 cursos = supabase.table("cursos").select("id_curso, nome, id_departamento").execute().data
-departamento_professor = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
+participa = supabase.table("departamento_professor").select("id_professor, id_departamento").execute().data
 professores_por_departamento = {}
-for p in departamento_professor:
+for p in participa:
     professores_por_departamento.setdefault(p["id_departamento"], []).append(p["id_professor"])
 for curso in cursos:
     id_curso = curso["id_curso"]
@@ -381,7 +381,7 @@ for curso in cursos:
     disciplinas_sorteadas = random.sample(lista_disc, 10)
     # Embaralhar os semestres de 1 a 10 para garantir distribuição única
     semestres_disponiveis = random.sample(range(1, 11), 10)
-   # Atribuir uma disciplina a cada semestre
+# Atribuir uma disciplina a cada semestre
     for nome_disc, sem_disc in zip(disciplinas_sorteadas, semestres_disponiveis):
         id_professor_escolhido = random.choice(profs_dep)
         response_disc = supabase.table("disciplina").insert({
@@ -458,7 +458,7 @@ for dep in dep_rows:
             disc_id = resp.data[0]["id_disciplina"]
             coringas_por_dep.setdefault(dep_id, {}).setdefault(disc["semestre"], []).append(disc_id)
             print(f"[coringa] Inserido: {disc['nome']} (Semestre {disc['semestre']}) no Departamento {nome_dep} com Prof {chosen_prof}")
-            # Inserir a disciplina coringa na tabela "curso_disciplina" para todos os cursos deste departamento
+            # Inserir a disciplina coringa na tabela "possui" para todos os cursos deste departamento
             cursos_do_dep = supabase.table("cursos").select("id_curso").eq("id_departamento", dep_id).execute().data
             for curso in cursos_do_dep:
                 supabase.table("curso_disciplina").insert({
@@ -469,7 +469,7 @@ for dep in dep_rows:
 
 
 ##############################################################################
-# INSERIR ALUNOS, aluno_disciplina, HISTORICO E historico_disciplina
+# INSERIR ALUNOS, CURSA, HISTORICO E TEM
 ##############################################################################
 
 # Função para gerar histórico – se for a segunda tentativa, forçamos a aprovação.
@@ -588,7 +588,7 @@ for curso in cursos_alunos:
                     qtd = random.randint(1, min(2, len(coringas)))
                     escolhidas = random.sample(coringas, qtd)
                     for id_disc in escolhidas:
-                        # Inserir matrícula em aluno_disciplina para o histórico anterior
+                        # Inserir matrícula em cursa para o histórico anterior
                         supabase.table("aluno_disciplina").insert({
                             "id_aluno": id_aluno_criado,
                             "id_disciplina": id_disc
@@ -648,4 +648,4 @@ for curso in cursos_alunos:
                     print(f"[histórico atual] Aluno {id_aluno_criado} reprovou na disciplina {id_disc} (primeira tentativa). Forçando segunda tentativa...")
                     p1, p2, p3 = gerar_historia(id_aluno_criado, id_disc, forcar_passo=True)
 
-print("===== Inserção de Alunos, aluno_disciplina, Histórico e historico_disciplina finalizada. =====")
+print("===== Inserção de Alunos, Cursa, Histórico e Tem finalizada. =====") 
